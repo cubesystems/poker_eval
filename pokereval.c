@@ -16,6 +16,14 @@
 static VALUE t_init(VALUE self)
 {
     VALUE arr;
+
+  int card;
+      char* card_string = "oc";
+    if(Deck_stringToCard(card_string, &card) == 0) {
+      printf("card %s is not a valid card name", card_string);
+      return -1;
+    }
+    
     
     arr = rb_ary_new();
     rb_iv_set(self, "@arr", arr);
