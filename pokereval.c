@@ -490,6 +490,10 @@ static int PyList2CardMask(VALUE object, CardMask* cardsp)
   int cards_size = 0;
   int valid_cards_size = 0;
 
+  if (TYPE(object) != T_ARRAY)
+  {
+    rb_fatal("expected a list of cards");
+  }
   /* if(!PyList_Check(object)) {*/
   /*   PyErr_SetString(PyExc_TypeError, "expected a list of cards");*/
   /*   return -1;*/
@@ -502,21 +506,24 @@ static int PyList2CardMask(VALUE object, CardMask* cardsp)
   int i;
   for(i = 0; i < cards_size; i++) {
     card = -1;
-    VALUE pycard = rb_ary_entry(object, i);
+    /* VALUE pycard = rb_ary_entry(object, i);*/
+      char* card_string = RSTRING_PTR(rb_ary_entry(object, i));
+       printf ("karte: %s \n", card_string);
+    
     /* if(PyErr_Occurred())*/
     /*   return -1;*/
 
     /* if(PyString_Check(pycard)) {*/
-    /*   char* card_string = PyString_AsString(pycard);*/
-    /*   if(!strcmp(card_string, "__")) {*/
-    /*     card = 255;*/
-    /*   }*/
-    /*   else {*/
-    /*     if(Deck_stringToCard(card_string, &card) == 0) {*/
-    /*       PyErr_Format(PyExc_RuntimeError, "card %s is not a valid card name", card_string);*/
-    /*       return -1;*/
-    /*     }*/
-    /*   }*/
+      /* char* card_string = PyString_AsString(pycard);*/
+      if(!strcmp(card_string, "__")) {
+        card = 255;
+      }
+      else {
+        if(Deck_stringToCard(card_string, &card) == 0) {
+          rb_fatal("card %s is not a valid card name", card_string);
+          return -1;
+        }
+      }
     /* }*/
     /* else if(PyInt_Check(pycard)) {*/
     /*   card = PyInt_AsLong(pycard);*/
@@ -580,12 +587,11 @@ t_eval(VALUE self, VALUE args)
   enum_gameparams_t* params = 0;
 
 
-
   game = RSTRING_PTR(rb_hash_aref(args, rb_str_new2("game")));
   pypockets = rb_hash_aref(args, rb_str_new2("pockets"));
   pyboard = rb_hash_aref(args, rb_str_new2("board"));
   pydead = rb_hash_aref(args, rb_str_new2("dead"));
-  fill_pockets = FIX2INT(rb_hash_aref(args, rb_str_new2("fill_pockets")));
+  /* fill_pockets = FIX2INT(rb_hash_aref(args, rb_str_new2("fill_pockets")));*/
   iterations = FIX2INT(rb_hash_aref(args, rb_str_new2("iterations")));
 
 
@@ -649,6 +655,8 @@ t_eval(VALUE self, VALUE args)
       /*   goto err;*/
 
       count = PyList2CardMask(pypocket, &pockets[i]);
+       /* printf ("skaits: %i \n", count);*/
+      
       if(count < 0)
         goto err;
       if(count < RARRAY_LEN(pypocket))
@@ -670,12 +678,17 @@ t_eval(VALUE self, VALUE args)
       numToDeal[0] = 0;
   }
 
-  if(RARRAY_LEN(pydead) > 0) {
-    /* rb_fatal("pockets must be list");*/
-  /*   if(PyList2CardMask(pydead, &dead_cards) < 0)*/
-  /*     goto err;*/
-  /* } else {*/
-  /*   CardMask_RESET(dead_cards);*/
+  
+  /* return pydead;*/
+
+  if(!NIL_P(pydead) && RARRAY_LEN(pydead) > 0) {
+    if(PyList2CardMask(pydead, &dead_cards) < 0){
+      rb_fatal("dead cards error");
+      /* goto err;*/
+    }
+  }
+  else {
+      CardMask_RESET(dead_cards);
   }
 
   /* return iterations;*/
@@ -719,7 +732,7 @@ t_eval(VALUE self, VALUE args)
     for(i = 0; i < pockets_size; i++) {
       VALUE tmp = rb_hash_new(); 
 
-       printf ("%i \n", cresult.nscoop[i]);
+       /* printf ("%i \n", cresult.nscoop[i]);*/
       rb_hash_aset(tmp, rb_str_new2("scoopxx"), INT2NUM(i));
       rb_hash_aset(tmp, rb_str_new2("scoop"), INT2NUM(cresult.nscoop[i]));
       rb_hash_aset(tmp, rb_str_new2("winhi"), INT2NUM(cresult.nwinhi[i]));
