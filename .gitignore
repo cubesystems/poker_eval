@@ -1,2 +1,5 @@
 Makefile
 pokereval.bundle
+*.so
+*.o
+*.log
