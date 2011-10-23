@@ -1,5 +1,12 @@
-Makefile
-pokereval.bundle
-*.so
+.bundle
+.rvmrc
+Gemfile.lock
+poker_eval.bundle
+poker_eval.so
 *.o
+*.gem
+*.rbc
 *.log
+*~
+pkg/
+tmp/
