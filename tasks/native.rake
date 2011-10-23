@@ -1,10 +1,7 @@
 # use rake-compiler for building the extension
 require 'rake/extensiontask'
 
-MYSQL_VERSION = "5.0.83"
-MYSQL_MIRROR  = ENV['MYSQL_MIRROR'] || "http://mysql.localhost.net.ar"
-
-Rake::ExtensionTask.new('poker-eval', HOE.spec) do |ext|
+Rake::ExtensionTask.new('poker_eval_api', HOE.spec) do |ext|
   # reference where the vendored MySQL got extracted
   # mysql_lib = File.expand_path(File.join(File.dirname(__FILE__), '..', 'vendor', "mysql-#{MYSQL_VERSION}-win32"))
 

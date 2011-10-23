@@ -765,7 +765,7 @@ err:
 VALUE cTest;
 
 void
-Init_pokereval()
+Init_poker_eval_api()
 {
     cTest = rb_define_class("PokerEval", rb_cObject);
     rb_define_method(cTest, "initialize", t_init, 0);

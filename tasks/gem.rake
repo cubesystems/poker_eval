@@ -9,7 +9,7 @@ HOE = Hoe.spec 'poker-eval' do
 
   spec_extras[:required_ruby_version] = Gem::Requirement.new('>= 1.9.2')
 
-  spec_extras[:extensions] = ["ext/poker-eval/extconf.rb"]
+  spec_extras[:extensions] = ["ext/poker_eval_api/extconf.rb"]
 
   extra_dev_deps << ['rake-compiler', "~> 0.5"]
 end
