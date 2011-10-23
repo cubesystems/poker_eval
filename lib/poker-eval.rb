@@ -1,10 +1,10 @@
 # support multiple ruby version (fat binaries under windows)
 begin
-  require 'poker_eval'
+  require 'poker-eval'
 rescue LoadError
   if RUBY_PLATFORM =~ /mingw|mswin/ then
     RUBY_VERSION =~ /(\d+.\d+)/
-    require "#{$1}/poker_eval"
+    require "#{$1}/poker-eval"
   end
 end
 

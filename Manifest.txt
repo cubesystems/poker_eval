@@ -4,9 +4,9 @@ History.txt
 Manifest.txt
 README.txt
 Rakefile
-ext/poker_eval/extconf.rb
-ext/poker_eval/poker_eval.c
-lib/poker_eval.rb
+ext/poker-eval/extconf.rb
+ext/poker-eval/poker-eval.c
+lib/poker-eval.rb
 tasks/gem.rake
 tasks/native.rake
-test/test_poker_eval.rb
+test/test_poker-eval.rb

@@ -1,7 +1,7 @@
 require 'rubygems/package_task'
 require 'hoe'
 
-HOE = Hoe.spec 'poker_eval' do
+HOE = Hoe.spec 'poker-eval' do
   self.author         = ['Miks Mikelsons']
   self.email          = %w[miks@cubesystems.lv]
   self.need_tar       = false
@@ -9,7 +9,7 @@ HOE = Hoe.spec 'poker_eval' do
 
   spec_extras[:required_ruby_version] = Gem::Requirement.new('>= 1.9.2')
 
-  spec_extras[:extensions] = ["ext/poker_eval/extconf.rb"]
+  spec_extras[:extensions] = ["ext/poker-eval/extconf.rb"]
 
   extra_dev_deps << ['rake-compiler', "~> 0.5"]
 end
