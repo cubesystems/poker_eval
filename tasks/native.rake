@@ -2,9 +2,6 @@
 require 'rake/extensiontask'
 
 Rake::ExtensionTask.new('poker_eval_api', HOE.spec) do |ext|
-  # reference where the vendored MySQL got extracted
-  # mysql_lib = File.expand_path(File.join(File.dirname(__FILE__), '..', 'vendor', "mysql-#{MYSQL_VERSION}-win32"))
-
 
   # automatically add build options to avoid need of manual input
   # ext.cross_compile = true
