@@ -479,7 +479,6 @@ t_eval(VALUE self, VALUE args)
 {
   int i;
   int pockets_size;
-  int fill_pockets = 0;
   int iterations = 0;
   VALUE rbpockets = 0;
   VALUE rbboard = 0;
@@ -492,7 +491,6 @@ t_eval(VALUE self, VALUE args)
   rbpockets = rb_hash_aref(args, rb_str_new2("pockets"));
   rbboard = rb_hash_aref(args, rb_str_new2("board"));
   rbdead = rb_hash_aref(args, rb_str_new2("dead"));
-  /* fill_pockets = FIX2INT(rb_hash_aref(args, rb_str_new2("fill_pockets")));*/
   iterations = FIX2INT(rb_hash_aref(args, rb_str_new2("iterations")));
 
 
