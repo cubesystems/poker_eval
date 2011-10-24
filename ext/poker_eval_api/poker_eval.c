@@ -625,6 +625,6 @@ void
 Init_poker_eval_api()
 {
     cPokerEval = rb_define_class("PokerEval", rb_cObject);
-    rb_define_method(cPokerEval, "eval", t_eval, 1);
+    rb_define_singleton_method(cPokerEval, "eval", t_eval, 1);
 }
 
