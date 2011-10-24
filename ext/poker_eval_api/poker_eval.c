@@ -1,21 +1,9 @@
 #include "ruby.h"
 
-#include "poker_defs.h"
-#include "inlines/eval.h"
-#include "inlines/eval_low.h"
-#include "inlines/eval_low8.h"
-#include "inlines/eval_joker_low.h"
-#include "inlines/eval_omaha.h"
-#include "deck_std.h"
-#include "rules_std.h"
-
-#include "enumerate.h"
-#include "enumdefs.h"
-
 /*
  *
- * Copyright (C) 2007, 2008 Loic Dachary <loic@dachary.org>
- * Copyright (C) 2004, 2005, 2006 Mekensleep
+ * Corbright (C) 2007, 2008 Loic Dachary <loic@dachary.org>
+ * Corbright (C) 2004, 2005, 2006 Mekensleep
  *
  *	Mekensleep
  *	24 rue vieille du temple
@@ -32,7 +20,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a corb of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.
  *
@@ -40,14 +28,6 @@
  *  Loic Dachary <loic@dachary.org>
  *
  */
-
-/* #ifdef _DEBUG // for Windows python23_d.lib is not in distribution... ugly but works*/
-/*  #undef _DEBUG*/
-/*  #include <Python.h>*/
-/*  #define _DEBUG*/
-/* #else*/
-/*  #include <Python.h>*/
-/* #endif*/
 
 
 /* enumerate.c -- functions to compute pot equity by enumerating outcomes
@@ -62,22 +42,17 @@
    Michael Maurer, Apr 2002
 */
 
-/* #include "poker_defs.h"*/
-/* #include "inlines/eval.h"*/
-/* #include "inlines/eval_low.h"*/
-/* #include "inlines/eval_low8.h"*/
-/* #include "inlines/eval_joker_low.h"*/
-/* #include "inlines/eval_omaha.h"*/
-/* #include "deck_std.h"*/
-/* #include "rules_std.h"*/
+#include "poker_defs.h"
+#include "inlines/eval.h"
+#include "inlines/eval_low.h"
+#include "inlines/eval_low8.h"
+#include "inlines/eval_joker_low.h"
+#include "inlines/eval_omaha.h"
+#include "deck_std.h"
+#include "rules_std.h"
 
-/* #include "enumerate.h"*/
-/* #include "enumdefs.h"*/
-
-/* #ifdef WIN32*/
-/* #define VERSION_NAME(W) W##2_4*/
-/* #define PYTHON_VERSION "2_4"*/
-/* #endif [> WIN32 <]*/
+#include "enumerate.h"
+#include "enumdefs.h"
 
 /* INNER_LOOP is executed in every iteration of the combinatorial enumerator
    macros DECK_ENUMERATE_n_CARDS_D() and DECK_ENUMERATE_PERMUTATIONS_D.  It
@@ -302,7 +277,7 @@
   })
 
 static int 
-pyenumExhaustive(enum_game_t game, StdDeck_CardMask pockets[],
+rbenumExhaustive(enum_game_t game, StdDeck_CardMask pockets[],
 		 int numToDeal[],
                StdDeck_CardMask board, StdDeck_CardMask dead,
                int sizeToDeal, enum_result_t *result) {
@@ -395,7 +370,7 @@ pyenumExhaustive(enum_game_t game, StdDeck_CardMask pockets[],
 }
 
 static int 
-pyenumSample(enum_game_t game, StdDeck_CardMask pockets[],
+rbenumSample(enum_game_t game, StdDeck_CardMask pockets[],
 		 int numToDeal[],
                StdDeck_CardMask board, StdDeck_CardMask dead,
                int sizeToDeal, int iterations, enum_result_t *result) {
@@ -462,7 +437,7 @@ pyenumSample(enum_game_t game, StdDeck_CardMask pockets[],
 
 #define NOCARD 255
 
-static int PyList2CardMask(VALUE object, CardMask* cardsp)
+static int rbList2CardMask(VALUE object, CardMask* cardsp)
 {
   CardMask cards;
   int cards_size = 0;
@@ -472,10 +447,6 @@ static int PyList2CardMask(VALUE object, CardMask* cardsp)
   {
     rb_fatal("expected a list of cards");
   }
-  /* if(!PyList_Check(object)) {*/
-  /*   PyErr_SetString(PyExc_TypeError, "expected a list of cards");*/
-  /*   return -1;*/
-  /* }*/
 
   valid_cards_size = cards_size = RARRAY_LENINT(object);
   CardMask_RESET(cards);
@@ -484,36 +455,13 @@ static int PyList2CardMask(VALUE object, CardMask* cardsp)
   int i;
   for(i = 0; i < cards_size; i++) {
     card = -1;
-    /* VALUE pycard = rb_ary_entry(object, i);*/
-      char* card_string = RSTRING_PTR(rb_ary_entry(object, i));
-       printf ("karte: %s \n", card_string);
-    
-    /* if(PyErr_Occurred())*/
-    /*   return -1;*/
+    char* card_string = RSTRING_PTR(rb_ary_entry(object, i));
 
-    /* if(PyString_Check(pycard)) {*/
-      /* char* card_string = PyString_AsString(pycard);*/
-      if(!strcmp(card_string, "__")) {
+    if(!strcmp(card_string, "__"))
         card = 255;
-      }
-      else {
-        if(Deck_stringToCard(card_string, &card) == 0) {
-          rb_fatal("card %s is not a valid card name", card_string);
-          return -1;
-        }
-      }
-    /* }*/
-    /* else if(PyInt_Check(pycard)) {*/
-    /*   card = PyInt_AsLong(pycard);*/
-    /*   if(card != NOCARD && (card < 0 || card > StdDeck_N_CARDS)) {*/
-    /*     PyErr_Format(PyExc_TypeError, "card value (%d) must be in the range [0-%d]", card, StdDeck_N_CARDS);*/
-    /*     return -1;*/
-    /*   }*/
-    /* }*/
-    /* else {*/
-    /*   PyErr_SetString(PyExc_TypeError, "card must be a string or an int");*/
-    /*   return -1;*/
-    /* }*/
+    else
+        if(Deck_stringToCard(card_string, &card) == 0)
+            rb_fatal("card %s is not a valid card name", card_string);
 
     if(card == NOCARD)
       valid_cards_size--;
@@ -526,31 +474,6 @@ static int PyList2CardMask(VALUE object, CardMask* cardsp)
   return valid_cards_size;
 }
 
-#if 0
-static PyObject* CardMask2PyList(CardMask* cardmask)
-{
-  PyObject* result = 0;
-  int cardmask_size = StdDeck_numCards(cardmask);
-  int cards[64];
-  int i;
-
-  if((i = CurDeck.maskToCards(cardmask, cards)) != cardmask_size) {
-    PyErr_Format(PyExc_RuntimeError, "CardMask2PyList: maskToCards returns %d cards, expected %d\n", i, cardmask_size);
-    return 0;
-  }
-
-  result = PyList_New(0);
-  for(i = 0; i < cardmask_size; i++) {
-    PyObject* pycard = Py_BuildValue("i", cards[i]);
-    int status = PyList_Append(result, pycard);
-    Py_DECREF(pycard);
-    if(status < 0) return 0;
-  }
-
-  return result;
-}
-#endif
-
 static VALUE
 t_eval(VALUE self, VALUE args)
 {
@@ -558,17 +481,17 @@ t_eval(VALUE self, VALUE args)
   int pockets_size;
   int fill_pockets = 0;
   int iterations = 0;
-  VALUE pypockets = 0;
-  VALUE pyboard = 0;
+  VALUE rbpockets = 0;
+  VALUE rbboard = 0;
   char* game = 0;
-  VALUE pydead = 0;
+  VALUE rbdead = 0;
   enum_gameparams_t* params = 0;
 
 
   game = RSTRING_PTR(rb_hash_aref(args, rb_str_new2("game")));
-  pypockets = rb_hash_aref(args, rb_str_new2("pockets"));
-  pyboard = rb_hash_aref(args, rb_str_new2("board"));
-  pydead = rb_hash_aref(args, rb_str_new2("dead"));
+  rbpockets = rb_hash_aref(args, rb_str_new2("pockets"));
+  rbboard = rb_hash_aref(args, rb_str_new2("board"));
+  rbdead = rb_hash_aref(args, rb_str_new2("dead"));
   /* fill_pockets = FIX2INT(rb_hash_aref(args, rb_str_new2("fill_pockets")));*/
   iterations = FIX2INT(rb_hash_aref(args, rb_str_new2("iterations")));
 
@@ -579,13 +502,6 @@ t_eval(VALUE self, VALUE args)
   CardMask board_cards;
 
   VALUE result = 0;
-
-
-  /* static char *kwlist[] = {"game", "pockets", "board", "dead", "fill_pockets", "iterations", NULL};*/
-
-  /* if (!PyArg_ParseTupleAndKeywords(args, keywds, "sOO|Oii", kwlist, */
-					 /* &game, &pypockets, &pyboard, &pydead, &fill_pockets, &iterations))*/
-    /* return NULL;*/
 
   if(!strcmp(game, "holdem")) {
     params = enumGameParams(game_holdem);
@@ -615,30 +531,26 @@ t_eval(VALUE self, VALUE args)
     params = enumGameParams(game_lowball27);
   }
 
-  if(params == 0) {
+  if(params == 0)
     rb_fatal("game %s is not a valid value (holdem, holdem8, omaha, omaha8, 7stud, 7stud8, 7studnsq, razz, 5draw, 5draw8, 5drawnsq, lowball, lowball27)", game);
-  }
 
-  if (TYPE(pypockets) != T_ARRAY)
+  if (TYPE(rbpockets) != T_ARRAY)
     rb_fatal("pockets must be list");
 
-  pockets_size = RARRAY_LENINT(pypockets);
+  pockets_size = RARRAY_LENINT(rbpockets);
 
   {
     for(i = 0; i < pockets_size; i++) {
       int count;
       CardMask_RESET(pockets[i]);
-      VALUE pypocket = rb_ary_entry(pypockets, i);
-      /* if(PyErr_Occurred()) */
-      /*   goto err;*/
+      VALUE rbpocket = rb_ary_entry(rbpockets, i);
 
-      count = PyList2CardMask(pypocket, &pockets[i]);
-       /* printf ("skaits: %i \n", count);*/
-      
+      count = rbList2CardMask(rbpocket, &pockets[i]);
+
       if(count < 0)
         goto err;
-      if(count < RARRAY_LEN(pypocket))
-        numToDeal[i + 1] = RARRAY_LENINT(pypocket) - count;
+      if(count < RARRAY_LEN(rbpocket))
+        numToDeal[i + 1] = RARRAY_LENINT(rbpocket) - count;
       else
         numToDeal[i + 1] = 0;
     }
@@ -647,34 +559,23 @@ t_eval(VALUE self, VALUE args)
 
   {
     int count;
-    count = PyList2CardMask(pyboard, &board_cards);
+    count = rbList2CardMask(rbboard, &board_cards);
     if(count < 0)
       goto err;
-    if(count < RARRAY_LENINT(pyboard))
-      numToDeal[0] = RARRAY_LENINT(pyboard) - count;
+    if(count < RARRAY_LENINT(rbboard))
+      numToDeal[0] = RARRAY_LENINT(rbboard) - count;
     else
       numToDeal[0] = 0;
   }
 
-  
-  /* return pydead;*/
-
-  if(!NIL_P(pydead) && RARRAY_LEN(pydead) > 0) {
-    if(PyList2CardMask(pydead, &dead_cards) < 0){
+  if(!NIL_P(rbdead) && RARRAY_LEN(rbdead) > 0) {
+    if(rbList2CardMask(rbdead, &dead_cards) < 0){
       rb_fatal("dead cards error");
-      /* goto err;*/
     }
   }
   else {
       CardMask_RESET(dead_cards);
   }
-
-  /* return iterations;*/
-  /* return game;*/
-
-  /* return args;*/
-
-/* return INT2NUM(iterations);*/
 
   {
     enum_result_t cresult;
@@ -682,18 +583,16 @@ t_eval(VALUE self, VALUE args)
     memset(&cresult, '\0', sizeof(enum_result_t));
 
     if(iterations > 0) {
-      err = pyenumSample(params->game, pockets, numToDeal, board_cards, dead_cards, pockets_size + 1, iterations, &cresult);
+      err = rbenumSample(params->game, pockets, numToDeal, board_cards, dead_cards, pockets_size + 1, iterations, &cresult);
     } else {
-      err = pyenumExhaustive(params->game, pockets, numToDeal, board_cards, dead_cards, pockets_size + 1, &cresult);
+      err = rbenumExhaustive(params->game, pockets, numToDeal, board_cards, dead_cards, pockets_size + 1, &cresult);
     }
     if(err != 0) {
-      /* PyErr_Format(PyExc_RuntimeError, "poker-eval: pyenum returned error code %d", err);*/
-      return 0;
+      rb_fatal("poker-eval: rbenum returned error code %d", err);
     }
 
     result = rb_hash_new();
 
-/* return cresult;*/
     VALUE info = rb_hash_new(); 
     rb_hash_aset(info, rb_str_new2("samples"), INT2NUM(cresult.nsamples));
     rb_hash_aset(info, rb_str_new2("haslopot"), INT2NUM(params->haslopot));
