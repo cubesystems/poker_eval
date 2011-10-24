@@ -482,17 +482,21 @@ t_eval(VALUE self, VALUE args)
   int iterations = 0;
   VALUE rbpockets = 0;
   VALUE rbboard = 0;
-  char* game = 0;
   VALUE rbdead = 0;
+  VALUE rbiterations = 0;
+  char* game = 0;
   enum_gameparams_t* params = 0;
-
 
   game = RSTRING_PTR(rb_hash_aref(args, rb_str_new2("game")));
   rbpockets = rb_hash_aref(args, rb_str_new2("pockets"));
   rbboard = rb_hash_aref(args, rb_str_new2("board"));
   rbdead = rb_hash_aref(args, rb_str_new2("dead"));
-  iterations = FIX2INT(rb_hash_aref(args, rb_str_new2("iterations")));
+  rbiterations = rb_hash_aref(args, rb_str_new2("iterations"));
 
+  if( !NIL_P(rbiterations))
+  {
+    iterations = FIX2INT(rbiterations);
+  }
 
   StdDeck_CardMask pockets[ENUM_MAXPLAYERS];
   int numToDeal[ENUM_MAXPLAYERS];
