@@ -3,17 +3,15 @@
 
 require "test/unit"
 require 'ostruct'
-
-
 require "poker_eval"
-t = PokerEval.new       
-# x = t.eval({"game"=>"holdem", "pockets"=>[["Qc","Jh"],["9h","6c"],["4c","4h"],["6h","8c"]], "board"=>["Ac","Kc"],  "iterations" => 1000})
-x = t.eval({"game"=>"holdem", "pockets"=>[["tc", "ac"],  ["th", "ah"],  ["8c", "6h"]], "board"=>["7h",
-        "3s", "2c", "7s", "7d"],  "iterations" => 10000})
-print x["info"]
-print "\n"
-for i in x["eval"]
-  print i
-  print "\n"
-end
 
+class TC_Mysql < Test::Unit::TestCase
+  def test_eval()
+    pockets = [["tc", "ac"],  ["th", "ah"],  ["8c", "6h"]]
+    board = ["7h","3s", "2c", "7s", "7d"]
+    game = "holdem"
+    result = PokerEval.eval({"game"=>game, "pockets"=>pockets, "board"=>board,  "iterations"=>10000})
+    expect = {"info"=>{"samples"=>10000, "haslopot"=>0, "hashipot"=>1}, "eval"=>[{"scoop"=>0, "winhi"=>0, "losehi"=>0, "tiehi"=>10000, "winlo"=>0, "loselo"=>0, "tielo"=>0, "ev"=>500}, {"scoop"=>0, "winhi"=>0, "losehi"=>0, "tiehi"=>10000, "winlo"=>0, "loselo"=>0, "tielo"=>0, "ev"=>500}, {"scoop"=>0, "winhi"=>0, "losehi"=>10000, "tiehi"=>0, "winlo"=>0, "loselo"=>0, "tielo"=>0, "ev"=>0}]}
+    assert_equal(result, expect);
+  end
+end
