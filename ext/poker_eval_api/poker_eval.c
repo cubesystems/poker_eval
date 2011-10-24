@@ -12,28 +12,6 @@
 #include "enumerate.h"
 #include "enumdefs.h"
 
-
-static VALUE t_init(VALUE self)
-{
-    VALUE arr;
-
-    arr = rb_ary_new();
-    rb_iv_set(self, "@arr", arr);
-    return self;
-}
-
-static VALUE t_add(VALUE self, VALUE anObject)
-{
-  VALUE arr;
-
-  arr = rb_iv_get(self, "@arr");
-  rb_ary_push(arr, anObject);
-  return arr;
-}
-
-
-
-
 /*
  *
  * Copyright (C) 2007, 2008 Loic Dachary <loic@dachary.org>
@@ -721,38 +699,21 @@ t_eval(VALUE self, VALUE args)
     rb_hash_aset(info, rb_str_new2("haslopot"), INT2NUM(params->haslopot));
     rb_hash_aset(info, rb_str_new2("hashipot"), INT2NUM(params->hashipot));
 
-    /* VALUE tmp;*/
-    /* tmp = INT2NUM(cresult.nsamples);*/
-    /* tmp = Py_BuildValue("(iii)", cresult.nsamples, params->haslopot, params->hashipot);*/
     rb_hash_aset(result, rb_str_new2("info"), info);
-    /* rb_ary_push(result, tmp);*/
-    /* return result;*/
-    /* Py_DECREF(tmp);*/
+
     VALUE list = rb_ary_new();
     for(i = 0; i < pockets_size; i++) {
       VALUE tmp = rb_hash_new(); 
-
-       /* printf ("%i \n", cresult.nscoop[i]);*/
-      rb_hash_aset(tmp, rb_str_new2("scoopxx"), INT2NUM(i));
       rb_hash_aset(tmp, rb_str_new2("scoop"), INT2NUM(cresult.nscoop[i]));
       rb_hash_aset(tmp, rb_str_new2("winhi"), INT2NUM(cresult.nwinhi[i]));
       rb_hash_aset(tmp, rb_str_new2("losehi"), INT2NUM(cresult.nlosehi[i]));
       rb_hash_aset(tmp, rb_str_new2("tiehi"), INT2NUM(cresult.ntiehi[i]));
       rb_hash_aset(tmp, rb_str_new2("winlo"), INT2NUM(cresult.nwinlo[i]));
       rb_hash_aset(tmp, rb_str_new2("loselo"), INT2NUM(cresult.nloselo[i]));
-      rb_hash_aset(tmp, rb_str_new2("ntielo"), INT2NUM(cresult.ntielo[i]));
-      /* tmp = Py_BuildValue("(iiiiiiid)",*/
-      /*   cresult.nscoop[i],*/
-      /*   cresult.nwinhi[i],*/
-      /*   cresult.nlosehi[i],*/
-      /*   cresult.ntiehi[i],*/
-      /*   cresult.nwinlo[i],*/
-      /*   cresult.nloselo[i],*/
-      /*   cresult.ntielo[i],*/
-      /*   cresult.ev[i] / cresult.nsamples);*/
-      /* PyList_Append(result, tmp);*/
-      /* Py_DECREF(tmp);*/
+      rb_hash_aset(tmp, rb_str_new2("tielo"), INT2NUM(cresult.ntielo[i]));
+      rb_hash_aset(tmp, rb_str_new2("ev"), INT2NUM((cresult.ev[i] / cresult.nsamples) * 1000));
       rb_ary_push(list, tmp);
+      tmp = 0;
     }
     rb_hash_aset(result, rb_str_new2("eval"), list);
   }
@@ -761,16 +722,12 @@ err:
   return result;
 }
 
-
-VALUE cTest;
+VALUE cPokerEval;
 
 void
 Init_poker_eval_api()
 {
-    cTest = rb_define_class("PokerEval", rb_cObject);
-    rb_define_method(cTest, "initialize", t_init, 0);
-    rb_define_method(cTest, "add", t_add, 1);
-    rb_define_method(cTest, "eval", t_eval, 1);
-    /* nothing here yet */
+    cPokerEval = rb_define_class("PokerEval", rb_cObject);
+    rb_define_method(cPokerEval, "eval", t_eval, 1);
 }
 
