@@ -1,8 +1,8 @@
 .bundle
 .rvmrc
 Gemfile.lock
-poker_eval.bundle
-poker_eval.so
+poker_eval_api.bundle
+poker_eval_api.so
 *.o
 *.gem
 *.rbc
