@@ -1,5 +1,5 @@
 Gem::Specification.new do |s|
-  s.name = %q{pokereval}
+  s.name = "poker_eval"
   s.version = "0.0.1"
   s.date = %q{2011-11-06}
   s.authors = ["Miks Miķselsons"]
