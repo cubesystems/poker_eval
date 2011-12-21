@@ -12,7 +12,7 @@ jeweler_tasks = Jeweler::Tasks.new do |gem|
     gem.description         = gem.summary
     gem.email               = 'miks@cube.lv'
     gem.homepage            = 'http://cubesystems.lv'
-    gem.authors             = ['Miks Miķelsons']
+    gem.authors             = ['Miks Mikelsonsss']
     gem.extensions          = FileList['ext/**/extconf.rb']
 
     gem.files.include('lib/poker_eval.*') # add native stuff
