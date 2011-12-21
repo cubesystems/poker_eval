@@ -1,7 +1,7 @@
 require 'rubygems/package_task'
 require 'hoe'
 
-HOE = Hoe.spec 'poker-eval' do
+HOE = Hoe.spec 'poker_eval' do
   self.author         = ['Miks Mikelsons']
   self.email          = %w[miks@cubesystems.lv]
   self.need_tar       = false

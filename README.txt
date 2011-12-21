@@ -1,4 +1,4 @@
-= poker-eval/Ruby Interface
+= poker evaluation Ruby Interface
 
 * http://pokersource.sourceforge.net/
 
