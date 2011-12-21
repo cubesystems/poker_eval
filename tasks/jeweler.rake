@@ -21,6 +21,5 @@ end
 $gemspec         = jeweler_tasks.gemspec
 $gemspec.version = jeweler_tasks.jeweler.version
 
-Jeweler::RubyforgeTasks.new
 Jeweler::GemcutterTasks.new
 

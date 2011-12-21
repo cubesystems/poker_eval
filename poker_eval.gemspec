@@ -21,15 +21,15 @@ Gem::Specification.new do |s|
     "COPYING.ja",
     "Gemfile",
     "History.txt",
-    "Manifest.txt",
     "README.txt",
     "Rakefile",
     "ext/poker_eval_api/extconf.rb",
     "ext/poker_eval_api/poker_eval.c",
     "lib/poker_eval.rb",
     "poker_eval.gemspec",
-    "tasks/gem.rake",
-    "tasks/native.rake"
+    "tasks/jeweler.rake",
+    "tasks/native.rake",
+    "test/test_poker_eval.rb"
   ]
   s.homepage = %q{http://cubesystems.lv}
   s.require_paths = ["lib"]
