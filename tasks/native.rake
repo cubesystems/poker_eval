@@ -2,8 +2,6 @@
 require 'rake/extensiontask'
 
 Rake::ExtensionTask.new('poker_eval_api', $gemspec) do |ext|
-  ext.cross_compile   = true
-
   # automatically add build options to avoid need of manual input
   # ext.cross_compile = true
   ext.cross_config_options << "--with-poker-eval-include=/usr/local/include"
