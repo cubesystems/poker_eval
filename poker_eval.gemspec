@@ -4,14 +4,14 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = %q{poker_eval}
-  s.version = "0.0.1"
+  s.name = "poker_eval"
+  s.version = "0.0.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Miks Mikelsonsss"]
-  s.date = %q{2011-12-22}
-  s.description = %q{poker evaluation Ruby Interface}
-  s.email = %q{miks@cube.lv}
+  s.authors = ["Miks Mikelsons"]
+  s.date = "2012-01-04"
+  s.description = "poker evaluation Ruby Interface"
+  s.email = "miks@cube.lv"
   s.extensions = ["ext/poker_eval_api/extconf.rb"]
   s.extra_rdoc_files = [
     "README.txt"
@@ -32,10 +32,10 @@ Gem::Specification.new do |s|
     "tasks/native.rake",
     "test/test_poker_eval.rb"
   ]
-  s.homepage = %q{http://cubesystems.lv}
+  s.homepage = "http://cubesystems.lv"
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.6.2}
-  s.summary = %q{poker evaluation Ruby Interface}
+  s.rubygems_version = "1.8.10"
+  s.summary = "poker evaluation Ruby Interface"
 
   if s.respond_to? :specification_version then
     s.specification_version = 3

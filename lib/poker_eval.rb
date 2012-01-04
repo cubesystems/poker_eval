@@ -9,6 +9,17 @@ class PokerEval
     VERSION = '0.0.1'
   end
 
+  def self.best args
+    results = self.eval_hand(args)
+    results["combination"].each_with_index do |i, index|
+      if index > 0
+        results["combination"][index] = self.card2string(i.to_i)
+      end
+    end
+
+    return results
+  end
+
   def self.winner args
     index2index = {}
     normalized_pockets = []

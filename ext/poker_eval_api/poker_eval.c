@@ -614,6 +614,29 @@ int findanddelete(CardMask* hand, int rank)
 }
 
 static VALUE
+t_card2Rbstring(VALUE self, VALUE args)
+{
+  int card = 0;
+
+  card = NUM2INT(args);
+
+  /* if (!PyArg_ParseTuple(args, "i", &card))*/
+    /* return NULL;*/
+
+  if(card == 255) {
+    return rb_str_new2("__");
+  } else {
+    /*
+     * Avoid using GenericDeck_cardString as long as it insists
+     * on using the "static thread" hack (see lib/deck.c).
+     */
+    char tmp[16];
+    StdDeck.cardToString(card, tmp);
+    rb_str_new2(tmp);
+  }
+}
+
+static VALUE
 t_eval_hand(VALUE self, VALUE args)
 {
   VALUE result = 0;
@@ -701,7 +724,7 @@ t_eval_hand(VALUE self, VALUE args)
 
   result = rb_hash_new();
   rb_hash_aset(result, rb_str_new2("value"), INT2NUM(best_handval));
-  rb_hash_aset(result, rb_str_new2("result"), CardMask2SortedRbList(best, low));
+  rb_hash_aset(result, rb_str_new2("combination"), CardMask2SortedRbList(best, low));
 
   return result;
 }
@@ -863,5 +886,6 @@ Init_poker_eval_api()
     cPokerEval = rb_define_class("PokerEval", rb_cObject);
     rb_define_singleton_method(cPokerEval, "eval", t_eval, 1);
     rb_define_singleton_method(cPokerEval, "eval_hand", t_eval_hand, 1);
+    rb_define_singleton_method(cPokerEval, "card2string", t_card2Rbstring, 1);
 }
 
