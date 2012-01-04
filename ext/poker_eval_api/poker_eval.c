@@ -475,6 +475,238 @@ static int rbList2CardMask(VALUE object, CardMask* cardsp)
 }
 
 static VALUE
+CardMask2SortedRbList(CardMask hand, int low)
+{
+  int i;
+  HandVal handval;
+  VALUE result = rb_ary_new();
+
+  if(StdDeck_CardMask_IS_EMPTY(hand)) {
+    rb_ary_push(result, rb_str_new2("Nothing"));
+    return result;
+  }
+
+  if(low) {
+    handval = Hand_EVAL_LOW8(hand, 5);
+  } else {
+    handval = Hand_EVAL_N(hand, 5);
+  }
+
+  int htype = HandVal_HANDTYPE(handval);
+  {
+    rb_ary_push(result, rb_str_new2(StdRules_handTypeNames[htype]));
+  }
+
+  if(!low || htype != LowHandVal_NOTHING) {
+    if (StdRules_nSigCards[htype] >= 1) {
+      int rank = HandVal_TOP_CARD(handval);
+      if(low) rank = LOWRANK2RANK(rank);
+
+      if(htype == HandType_STRAIGHT || htype == HandType_STFLUSH) {
+	for(i = rank; rank - i < 5; i--) {
+	  int rank_modulo = i < 0 ? StdDeck_Rank_ACE : i;
+    rb_ary_push(result, INT2NUM(findanddelete(&hand, rank_modulo)));
+		/* PyObject* pyvalue = Py_BuildValue("i", findanddelete(&hand, rank_modulo));*/
+		/* PyList_Append(result, pyvalue);*/
+		/* Py_DECREF(pyvalue);*/
+	}
+      } else {
+	int count;
+	switch(htype) {
+	case HandType_ONEPAIR:
+	case HandType_TWOPAIR:
+	  count = 2;
+	  break;
+	case HandType_TRIPS:
+	case HandType_FULLHOUSE:
+	  count = 3;
+	  break;
+	case HandType_QUADS:
+	  count = 4;
+	  break;
+	default:
+	  count = 1;
+	  break;
+	}
+	for(i = 0; i < count; i++) {
+    rb_ary_push(result, INT2NUM(findanddelete(&hand, rank)));
+		/* PyObject* pyvalue = Py_BuildValue("i", findanddelete(&hand, rank));*/
+		/* PyList_Append(result, pyvalue);*/
+		/* Py_DECREF(pyvalue);*/
+	}
+      }
+    }
+    if (StdRules_nSigCards[htype] >= 2) {
+      int rank = HandVal_SECOND_CARD(handval);
+      int count = 1;
+      if(low) rank = LOWRANK2RANK(rank);
+      if(htype == HandType_TWOPAIR ||
+	 htype == HandType_FULLHOUSE)
+	count = 2;
+
+      for(i = 0; i < count; i++) {
+        rb_ary_push(result, INT2NUM(findanddelete(&hand, rank)));
+	/* PyObject* pyvalue = Py_BuildValue("i", findanddelete(&hand, rank));*/
+	/* PyList_Append(result, pyvalue);*/
+	/* Py_DECREF(pyvalue);*/
+      }
+    }    
+
+    if (StdRules_nSigCards[htype] >= 3) {
+      int rank = HandVal_THIRD_CARD(handval);
+      if(low) rank = LOWRANK2RANK(rank);
+        rb_ary_push(result, INT2NUM(findanddelete(&hand, rank)));
+      /* PyObject* pyvalue = Py_BuildValue("i", findanddelete(&hand, rank));*/
+      /* PyList_Append(result, pyvalue);*/
+      /* Py_DECREF(pyvalue);*/
+    }
+
+    if (StdRules_nSigCards[htype] >= 4) {
+      int rank = HandVal_FOURTH_CARD(handval);
+      if(low) rank = LOWRANK2RANK(rank);
+      rb_ary_push(result, INT2NUM(findanddelete(&hand, rank)));
+      /* PyObject* pyvalue = Py_BuildValue("i", findanddelete(&hand, rank));*/
+      /* PyList_Append(result, pyvalue);*/
+      /* Py_DECREF(pyvalue);*/
+    }
+
+    if (StdRules_nSigCards[htype] >= 5) {
+      int rank = HandVal_FIFTH_CARD(handval);
+      if(low) rank = LOWRANK2RANK(rank);
+      rb_ary_push(result, INT2NUM(findanddelete(&hand, rank)));
+      /* PyObject* pyvalue = Py_BuildValue("i", findanddelete(&hand, rank));*/
+      /* PyList_Append(result, pyvalue);*/
+      /* Py_DECREF(pyvalue);*/
+    }
+
+  }
+
+  /*
+   * Append remaining cards, highest first
+   */
+  for(i = Deck_N_CARDS - 1; i >= 0; i--) {
+    if (StdDeck_CardMask_CARD_IS_SET(hand, i)) {
+      rb_ary_push(result, INT2NUM(i));
+      /* PyObject* pyvalue = Py_BuildValue("i", i);*/
+      /* PyList_Append(result, pyvalue);*/
+      /* Py_DECREF(pyvalue);*/
+    }
+  }
+
+  return result;
+}
+
+/*
+ * Find the card with highest suit matching rank in hand
+ * and remove it from hand. The removed card is returned.
+ */
+int findanddelete(CardMask* hand, int rank)
+{
+  int suit;
+  for(suit = StdDeck_Suit_LAST; suit >= StdDeck_Suit_FIRST; suit--) {
+    int card = StdDeck_MAKE_CARD(rank, suit);
+    if(CardMask_CARD_IS_SET(*hand, card)) {
+      CardMask_UNSET(*hand, card);
+      return card;
+    }
+  }
+  return -1;
+}
+
+static VALUE
+t_eval_hand(VALUE self, VALUE args)
+{
+  VALUE result = 0;
+  VALUE rbboard = 0;
+  VALUE rbhand = 0;
+  char* hilow_string = 0;
+
+  hilow_string = RSTRING_PTR(rb_hash_aref(args, rb_str_new2("side")));
+  rbboard = rb_hash_aref(args, rb_str_new2("board"));
+  rbhand = rb_hash_aref(args, rb_str_new2("hand"));
+
+  int low = 0;
+  CardMask hand;
+  CardMask board;
+  int board_size = 0;
+  CardMask best;
+  HandVal best_handval;
+
+  StdDeck_CardMask_RESET(best);
+
+  if(!strcmp(hilow_string, "low")) {
+    low = 1;
+  }
+
+
+  if(rbList2CardMask(rbhand, &hand) < 0)
+    rb_fatal("empty hand given");
+
+  /* board_size = rbList2CardMask(rbboard, &board);*/
+  /* rb_fatal("pockets must be list");*/
+
+  if(board_size > 0) {
+    CardMask hicards;
+    CardMask locards;
+    HandVal  hival = 0;
+    HandVal  loval = 0;
+    StdDeck_CardMask_RESET(hicards);
+    StdDeck_CardMask_RESET(locards);
+    OmahaHiLow8_Best(hand, board, &hival, &loval, &hicards, &locards);
+    if(low) {
+      best_handval = loval;
+      if(best_handval != LowHandVal_NOTHING)
+	best = locards;
+    } else {
+      best = hicards;
+      best_handval = hival;
+    }
+  } else {
+    CardMask cards;
+    CardMask dead;
+
+    StdDeck_CardMask_RESET(best);
+
+    StdDeck_CardMask_RESET(dead);
+    StdDeck_CardMask_OR(dead, dead, hand);
+    StdDeck_CardMask_NOT(dead, dead);
+
+    if(low) {
+      best_handval = LowHandVal_NOTHING;
+    } else {
+      best_handval = HandVal_NOTHING;
+    }
+
+    ENUMERATE_N_CARDS_D(cards, 5, dead, 
+    {
+      HandVal handval;
+
+      if(low) {
+	handval = Hand_EVAL_LOW8(cards, 5);
+      } else {
+	handval = Hand_EVAL_N(cards, 5);
+      }
+
+      if(low ? (handval < best_handval) : (handval > best_handval)) {
+	best = cards;
+	best_handval = handval;
+      }
+    }
+			);
+  }
+
+  if(StdDeck_CardMask_IS_EMPTY(best)) {
+    best_handval = low ? 0x0FFFFFFF : 0;
+  }
+
+  result = rb_hash_new();
+  rb_hash_aset(result, rb_str_new2("value"), INT2NUM(best_handval));
+  rb_hash_aset(result, rb_str_new2("result"), CardMask2SortedRbList(best, low));
+
+  return result;
+}
+
+static VALUE
 t_eval(VALUE self, VALUE args)
 {
   int i;
@@ -630,5 +862,6 @@ Init_poker_eval_api()
 {
     cPokerEval = rb_define_class("PokerEval", rb_cObject);
     rb_define_singleton_method(cPokerEval, "eval", t_eval, 1);
+    rb_define_singleton_method(cPokerEval, "eval_hand", t_eval_hand, 1);
 }
 
