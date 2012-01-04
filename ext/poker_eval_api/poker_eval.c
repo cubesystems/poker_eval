@@ -636,6 +636,95 @@ t_card2Rbstring(VALUE self, VALUE args)
   }
 }
 
+static int
+OmahaHiLow8_Best(StdDeck_CardMask hole, StdDeck_CardMask board,
+		 HandVal *hival, LowHandVal *loval,
+		 StdDeck_CardMask *hicards, StdDeck_CardMask *locards) {
+  StdDeck_CardMask allcards;
+  LowHandVal allval;
+  HandVal curhi, besthi;
+  LowHandVal curlo, bestlo;
+  StdDeck_CardMask hole1[OMAHA_MAXHOLE];
+  StdDeck_CardMask board1[OMAHA_MAXBOARD];
+  StdDeck_CardMask n1, n2, n3, n4, n5;
+  int nhole, nboard;
+  int eligible = 0;
+  int i, h1, h2, b1, b2, b3;
+
+  /* pluck out individual cards from hole and board masks, save in arrays */
+  nhole = nboard = 0;
+  for (i=0; i<StdDeck_N_CARDS; i++) {
+    if (StdDeck_CardMask_CARD_IS_SET(hole, i)) {
+      if (nhole >= OMAHA_MAXHOLE)
+        return 1;                               /* too many hole cards */
+      StdDeck_CardMask_RESET(hole1[nhole]);
+      StdDeck_CardMask_SET(hole1[nhole], i);
+      nhole++;
+    }
+    if (StdDeck_CardMask_CARD_IS_SET(board, i)) {
+      if (StdDeck_CardMask_CARD_IS_SET(hole, i)) /* same card in hole and board */
+        return 2;
+      if (nboard >= OMAHA_MAXBOARD)
+        return 3;                               /* too many board cards */
+      StdDeck_CardMask_RESET(board1[nboard]);
+      StdDeck_CardMask_SET(board1[nboard], i);
+      nboard++;
+    }
+  }
+
+  if (nhole < OMAHA_MINHOLE || nhole > OMAHA_MAXHOLE)
+    return 4;                                   /* wrong # of hole cards */
+  if (nboard < OMAHA_MINBOARD || nboard > OMAHA_MAXBOARD)
+    return 5;                                   /* wrong # of board cards */
+
+  /* quick test in case no low is possible with all 9 cards */
+  if (loval != NULL) {
+    StdDeck_CardMask_OR(allcards, hole, board);
+    allval = StdDeck_Lowball8_EVAL(allcards, nhole + nboard);
+    eligible = (allval != LowHandVal_NOTHING);
+  }
+
+  /* loop over all combinations of hole with board (60 for 4 hole cards
+     and 5 board cards). */
+  besthi = HandVal_NOTHING;
+  bestlo = LowHandVal_NOTHING;
+  /* {h1,h2} loop over all hole card combinations */
+  for (h1=0; h1<nhole-1; h1++) {
+    StdDeck_CardMask_RESET(n1);
+    StdDeck_CardMask_OR(n1, n1, hole1[h1]);
+    for (h2=h1+1; h2<nhole; h2++) {
+      StdDeck_CardMask_OR(n2, n1, hole1[h2]);
+      /* {b1,b2,b3} loop over all board card combinations */
+      for (b1=0; b1<nboard-2; b1++) {
+        StdDeck_CardMask_OR(n3, n2, board1[b1]);
+        for (b2=b1+1; b2<nboard-1; b2++) {
+          StdDeck_CardMask_OR(n4, n3, board1[b2]);
+          for (b3=b2+1; b3<nboard; b3++) {
+            if (hival != NULL) {
+              StdDeck_CardMask_OR(n5, n4, board1[b3]);
+              curhi = StdDeck_StdRules_EVAL_N(n5, 5);
+              if (curhi > besthi || besthi == HandVal_NOTHING) {
+                besthi = curhi;
+		*hicards = n5;
+	      }
+            }
+            if (loval != NULL && eligible) {
+              curlo = StdDeck_Lowball8_EVAL(n5, 5);
+              if (curlo < bestlo || bestlo == LowHandVal_NOTHING) {
+                bestlo = curlo;
+		*locards = n5;
+	      }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (hival != NULL) *hival = besthi;
+  if (loval != NULL) *loval = bestlo;
+  return 0;
+}
+
 static VALUE
 t_eval_hand(VALUE self, VALUE args)
 {
@@ -661,12 +750,13 @@ t_eval_hand(VALUE self, VALUE args)
     low = 1;
   }
 
-
   if(rbList2CardMask(rbhand, &hand) < 0)
     rb_fatal("empty hand given");
 
-  /* board_size = rbList2CardMask(rbboard, &board);*/
-  /* rb_fatal("pockets must be list");*/
+  if( !NIL_P(rbboard))
+  {
+    board_size = rbList2CardMask(rbboard, &board);
+  }
 
   if(board_size > 0) {
     CardMask hicards;

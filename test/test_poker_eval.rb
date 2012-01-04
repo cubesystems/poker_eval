@@ -22,4 +22,16 @@ class TC_PokerEval < Test::Unit::TestCase
     expect = {"value"=>34363392, "combination"=>["TwoPair", "As", "Ac", "7s", "7h", "Td"]}
     assert_equal(result, expect);
   end
+
+  def test_best_board()
+    board = [ 'As', '4d', '6h', '7d', '3c' ]
+    hand = [ '2s', '5s', 'Jd', 'Ks' ]
+    # hand = ["Ac", "As", "Td", "7s", "7h", "3s", "2c"]
+    # board = [ 'As', '4d', '5h', '7d', '9c' ]
+    side = "hi"
+    result = PokerEval.best({"side"=>side, "hand"=>hand, "board" => board})
+    expect = {"value"=>67371008, "combination"=>["Straight", "6h", "5s", "4d", "3c", "2s"]}
+    assert_equal(result, expect);
+  end
+  
 end
