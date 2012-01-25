@@ -6,18 +6,36 @@ end
 # define version string to be used internally for the Gem by Hoe.
 class PokerEval
   module GemVersion
-    VERSION = '0.0.1'
+    VERSION = '0.0.3'
+  end
+
+  @@rankChars = "23456789TJQKA"
+  @@suitChars = "hdcs"
+  @@suitBase = 13
+
+  def self.card2string index
+    index = index.to_i
+    card = ""
+    if index == 255
+      card = "__"
+    elsif index < 52
+      card = @@rankChars[index % @@suitBase] + @@suitChars[index / @@suitBase]
+    else
+      raise 'Unexisting card index given: ' + index.to_s
+    end
+
+    card
   end
 
   def self.best args
     results = self.eval_hand(args)
     results["combination"].each_with_index do |i, index|
       if index > 0
-        results["combination"][index] = self.card2string(i.to_i)
+        results["combination"][index] = card2string(i)
       end
     end
 
-    return results
+    results
   end
 
   def self.winner args
